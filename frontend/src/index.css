@@ -1,0 +1,27 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@import "tailwindcss";
+
+:root {
+	color: #171717;
+	background-color: #f6f6f4;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	font-family: 'Outfit', sans-serif;
+	color: #171717;
+	background:
+		radial-gradient(circle at 15% 20%, #fdf7ef 0%, transparent 30%),
+		radial-gradient(circle at 85% 10%, #eef4ff 0%, transparent 28%),
+		#f6f6f4;
+}
+
+#root {
+	min-height: 100vh;
+}
