@@ -77,6 +77,8 @@ const Login = () => {
 
   return (
     <div className='relative overflow-hidden min-h-screen flex items-center justify-center px-4 py-8'>
+      
+      {/* the circular background elements */}
       <div className='absolute -left-20 top-10 h-48 w-48 rounded-full bg-amber-200/40 blur-3xl' />
       <div className='absolute -right-20 bottom-10 h-60 w-60 rounded-full bg-cyan-300/30 blur-3xl' />
 

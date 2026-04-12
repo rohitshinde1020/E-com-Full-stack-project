@@ -80,6 +80,11 @@ const ShopcontextProvider = ({ children }) => {
     }
 
     const addtocart = async (itemid, size) => {
+        //  React state should be treated as immutable. To update the cartitems state, 
+        // we create a new copy of the current cartitems using structuredClone.
+        //  This ensures that we are not directly mutating the existing state, 
+        // which can lead to unexpected behavior in React. By creating a new object, 
+        // we allow React to properly detect changes and re-render components as needed.
         const cartdata = structuredClone(cartitems);
 
         if (cartdata[itemid]) {

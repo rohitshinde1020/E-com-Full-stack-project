@@ -36,7 +36,7 @@ const App = () => {
       <ToastContainer />
       <Navbar />
       <Search />
-      <Routes>
+      <Routes >
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/collection" element={<Collection />} />
@@ -46,7 +46,7 @@ const App = () => {
         <Route path='/product/:productId' element={<Product />} />
         <Route path='/cart' element={<Cart />} />
         <Route path='/profile' element={<Profile />} />
-      </Routes>
+      </Routes >
       <Footer />
     </div>
   )
