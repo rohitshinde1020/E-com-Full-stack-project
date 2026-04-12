@@ -3,8 +3,8 @@ const user = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-const createtoken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+const createtoken = (payload) => {
+    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 };
 
 const registerUser = async (req, res) => {
@@ -29,7 +29,7 @@ const registerUser = async (req, res) => {
         });
         await newUser.save();
 
-        const token = createtoken(newUser._id);
+        const token = createtoken({ id: newUser._id, role: 'user' });
 
         res.cookie('token', token, {
             httpOnly: true,
@@ -76,7 +76,7 @@ const loginUser = async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid credentials.' });
         }
 
-        const token = createtoken(existingUser._id);
+        const token = createtoken({ id: existingUser._id, role: 'user' });
 
         res.cookie('token', token, {
             httpOnly: true,
@@ -114,7 +114,7 @@ const adminlogin = async (req, res) => {
     }
 
     if (email === adminEmail && password === adminPassword) {
-        const token = createtoken(email + password); 
+        const token = createtoken({ id: email, role: 'admin' });
         res.json({ success: true, message: 'Admin logged in successfully!', token });
     } else {
         res.status(401).json({ success: false, message: 'Invalid admin credentials.' });

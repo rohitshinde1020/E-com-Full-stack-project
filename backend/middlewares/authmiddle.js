@@ -10,7 +10,7 @@ const adminauth = (req, res, next) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if (decoded.id !== process.env.ADMIN_EMAIL + process.env.ADMIN_PASSWORD) {
+        if (decoded.role !== 'admin') {
             return res.status(403).json({ success: false, message: 'Access denied. Invalid credentials.' });
         }
 
