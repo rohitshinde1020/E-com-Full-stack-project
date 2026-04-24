@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import Navbar from './components/Navbar'
 import { Routes, Route } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
@@ -20,13 +20,6 @@ const App = () => {
     localStorage.removeItem('adminToken')
     setToken('')
   }
-
-  useEffect(()  => {
-    const token = localStorage.getItem('adminToken')
-    if (token) {
-      setToken(token)
-    }
-  }, [])
 
   return (
     <div className='min-h-screen bg-gray-50'>

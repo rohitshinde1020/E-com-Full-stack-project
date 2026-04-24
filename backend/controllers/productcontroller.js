@@ -1,6 +1,19 @@
 const Product = require('../models/productModel.js');
 const cloudinary = require('cloudinary').v2;
 
+// Helper: upload a buffer to Cloudinary via upload_stream
+const uploadBufferToCloudinary = (buffer, options = {}) =>
+    new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+            { resource_type: 'auto', ...options },
+            (error, result) => {
+                if (error) return reject(error);
+                resolve(result);
+            }
+        );
+        stream.end(buffer);
+    });
+
 const addproduct = async (req, res) => {
     const { name, description, price, category, subCategory, sizes, bestseller } = req.body;
 
@@ -14,15 +27,18 @@ const addproduct = async (req, res) => {
         const image3 = req.files?.image3 && req.files.image3[0];
         const image4 = req.files?.image4 && req.files.image4[0];
 
-        const images = [image1, image2, image3, image4].filter(image => image !== undefined);
+        const images = [image1, image2, image3, image4].filter((image) => image !== undefined);
 
         if (images.length === 0) {
             return res.status(400).json({ success: false, message: 'Please upload at least one image.' });
         }
 
+        // Upload each buffer directly to Cloudinary (no disk writes — works on Vercel)
         const imageUrls = await Promise.all(
-            images.map(async (items) => {
-                const result = await cloudinary.uploader.upload(items.path, { resource_type: 'auto' });
+            images.map(async (file) => {
+                const result = await uploadBufferToCloudinary(file.buffer, {
+                    folder: 'ecom_products',
+                });
                 return result.secure_url;
             })
         );

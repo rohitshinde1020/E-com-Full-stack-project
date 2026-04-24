@@ -29,7 +29,7 @@ const Order = () => {
 
       setOrderData([])
       return []
-    } catch (error) {
+    } catch {
       setOrderData([])
       return []
     }

@@ -34,8 +34,9 @@ const registerUser = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 3600000
+            // 'none' required for cross-origin requests (frontend & backend on different Vercel domains)
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            maxAge: 3600000,
         });
 
         res.status(201).json({
@@ -81,8 +82,9 @@ const loginUser = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 3600000
+            // 'none' required for cross-origin requests (frontend & backend on different Vercel domains)
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            maxAge: 3600000,
         });
 
         res.json({

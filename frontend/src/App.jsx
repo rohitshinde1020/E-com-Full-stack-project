@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import {Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/home';
 import About from './pages/about';
 import Collection from './pages/collection';
@@ -13,7 +13,7 @@ import Product from './pages/product';
 import Footer from './components/footer';
 import Search from './components/search';
 import Profile from './pages/profile';
-import {ToastContainer} from 'react-toastify'
+import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { Shopcontext } from './context/shopcontext';
 
@@ -26,7 +26,12 @@ const App = () => {
     return (
       <div className='min-h-screen text-black font-outfit'>
         <ToastContainer />
-        <Login />
+        <Routes>
+          {/* Allow direct navigation to /login when unauthenticated */}
+          <Route path='/login' element={<Login />} />
+          {/* All other routes redirect to the login page */}
+          <Route path='*' element={<Login />} />
+        </Routes>
       </div>
     )
   }
@@ -36,7 +41,7 @@ const App = () => {
       <ToastContainer />
       <Navbar />
       <Search />
-      <Routes >
+      <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/collection" element={<Collection />} />
@@ -46,7 +51,9 @@ const App = () => {
         <Route path='/product/:productId' element={<Product />} />
         <Route path='/cart' element={<Cart />} />
         <Route path='/profile' element={<Profile />} />
-      </Routes >
+        {/* Redirect /login to home when already authenticated */}
+        <Route path='/login' element={<Navigate to='/' replace />} />
+      </Routes>
       <Footer />
     </div>
   )

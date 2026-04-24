@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { assets, products } from '../assets/assets'
+import { assets } from '../assets/assets'
 import Bestseller from './bestseller'
 import Latestcollection from './latestcollection'
 
