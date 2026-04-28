@@ -1,12 +1,10 @@
-import React, { useContext, useState, useRef } from 'react'
+import React, { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import axios from 'axios'
-import ReCAPTCHA from 'react-google-recaptcha'
 import { Shopcontext } from '../context/shopcontext'
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
-const recaptchaKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY || ''
 
 const Login = () => {
   const [mode, setMode] = useState('signin')
@@ -15,7 +13,6 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const recaptchaRef = useRef()
   const navigate = useNavigate()
   const { setToken } = useContext(Shopcontext)
 
@@ -49,17 +46,10 @@ const Login = () => {
     try {
       setIsSubmitting(true)
 
-      // Get CAPTCHA token
-      const captchaToken = await recaptchaRef.current.executeAsync()
-      if (!captchaToken) {
-        toast.error('CAPTCHA verification failed. Please try again.')
-        return
-      }
-
       const endpoint = isSignIn ? '/api/users/login' : '/api/users/register'
       const payload = isSignIn
-        ? { email: trimmedEmail, password: trimmedPassword, captchaToken }
-        : { name: trimmedName, email: trimmedEmail, password: trimmedPassword, captchaToken }
+        ? { email: trimmedEmail, password: trimmedPassword }
+        : { name: trimmedName, email: trimmedEmail, password: trimmedPassword }
 
       const response = await axios.post(`${backendUrl}${endpoint}`, payload)
 
@@ -82,8 +72,6 @@ const Login = () => {
       toast.error(message)
     } finally {
       setIsSubmitting(false)
-      // Reset CAPTCHA for next attempt
-      recaptchaRef.current?.reset()
     }
   }
 
@@ -189,18 +177,6 @@ const Login = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className='w-full px-4 py-3 rounded-lg border border-neutral-300 bg-white text-sm outline-none transition-colors focus:border-neutral-900 focus:ring-2 focus:ring-neutral-200'
-              />
-            </div>
-          )}
-
-          {/* CAPTCHA Verification */}
-          {recaptchaKey && (
-            <div className='mt-4 flex justify-center'>
-              <ReCAPTCHA
-                ref={recaptchaRef}
-                sitekey={recaptchaKey}
-                size='normal'
-                theme='light'
               />
             </div>
           )}
