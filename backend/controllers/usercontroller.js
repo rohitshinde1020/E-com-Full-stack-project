@@ -11,6 +11,11 @@ const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
 
     try {
+        // Verify CAPTCHA was validated by middleware
+        if (!req.captchaData) {
+            return res.status(400).json({ success: false, message: 'CAPTCHA verification is required.' });
+        }
+
         if (!name || !email || !password) {
             return res.status(400).json({ success: false, message: 'Please provide all required fields.' });
         }
@@ -61,6 +66,11 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
+
+        // Verify CAPTCHA was validated by middleware
+        if (!req.captchaData) {
+            return res.status(400).json({ success: false, message: 'CAPTCHA verification is required.' });
+        }
 
         if (!email || !password) {
             return res.status(400).json({ success: false, message: 'Please provide all required fields.' });

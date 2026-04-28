@@ -1,228 +1,297 @@
-# Full Stack E-Commerce Project
+# E-Com Website Monorepo
 
-A complete e-commerce platform built with three separate applications:
+Complete e-commerce platform with 3 apps inside one workspace:
 
-- Frontend app for customers
-- Admin app for store management
-- Backend REST API for business logic, authentication, and payments
+- `frontend` for customers
+- `admin` for store management
+- `backend` for API, auth, products, cart, orders, and payments
 
-This repository is structured for real-world workflow: independent app deployments, environment-based configuration, and production-ready route separation.
+This README documents the full `e-com-site` folder based on the current project state.
 
-## Applications
+## What Is Inside
 
-- `frontend/` - Customer website (React + Vite)
-- `admin/` - Admin dashboard (React + Vite)
-- `backend/` - API server (Node.js + Express + MongoDB)
+```text
+e-com-site/
+|- README.md
+|- frontend/                      # Customer app (React + Vite + Tailwind)
+|  |- src/
+|  |  |- components/
+|  |  |- context/shopcontext.jsx  # Global state: products, cart, auth token
+|  |  `- pages/                   # home, collection, product, cart, login, order, etc.
+|  |- package.json
+|  `- vercel.json
+|- admin/                         # Admin app (React + Vite + Tailwind)
+|  |- src/
+|  |  |- components/              # login, navbar, sidebar, dashboard cards
+|  |  `- pages/                   # add product, product list, order management
+|  |- package.json
+|  `- vercel.json
+`- backend/                       # Node.js + Express + MongoDB API
+   |- api/index.js                # Vercel serverless entry
+   |- app.js                      # Express app wiring, CORS, routes
+   |- server.js                   # Local dev server entry
+   |- config/                     # db and cloudinary connection
+   |- controllers/                # user, product, cart, order logic
+   |- middlewares/                # auth middlewares + multer
+   |- models/                     # mongoose schemas
+   |- routers/                    # API route groups
+   |- uploads/
+   |- package.json
+   `- vercel.json
+```
+
+## Architecture Overview
+
+1. Frontend and admin call backend using `VITE_BACKEND_URL`.
+2. Backend authenticates with JWT (`role: user` or `role: admin`).
+3. Product images upload to Cloudinary using in-memory multer buffers (no local disk requirement).
+4. Orders support COD, Stripe Checkout, and Razorpay.
+5. Deployment is split per app (3 separate Vercel projects is the recommended flow).
 
 ## Tech Stack
 
-- Frontend and Admin: React, Vite, Axios, React Router, Tailwind CSS
-- Backend: Node.js, Express, MongoDB (Mongoose), JWT, Multer, Cloudinary
-- Payments: Stripe and Razorpay integration
+- Frontend/Admin: React 19, Vite 8, React Router, Axios, Tailwind CSS 4, React Toastify
+- Backend: Node.js, Express 5, Mongoose, JWT, bcryptjs, CORS, cookie-parser, multer, cloudinary
+- Payments: Stripe + Razorpay
+- Database: MongoDB
 
-## Core Features
+## Features (Current)
 
-- User registration and login
-- Admin login and role-based admin authorization
-- Product listing and product management
-- Cart operations
-- Order placement (COD, Stripe, Razorpay)
-- Payment verification endpoints
-- Admin order management and status updates
-
-## Repository Structure
-
-```text
-.
-|- frontend/
-|- admin/
-|- backend/
-`- README.md
-```
+- User signup/login with JWT and cookie set from backend responses
+- Admin login using `ADMIN_EMAIL` and `ADMIN_PASSWORD`
+- Product creation with up to 4 images, size options, category/subcategory, bestseller flag
+- Product list and single product fetch for storefront
+- Cart create/update/fetch per authenticated user
+- Order placement:
+  - COD
+  - Stripe checkout session + verification
+  - Razorpay order + signature verification
+- Admin order retrieval and order status updates
+- API health endpoints and JSON 404 handling
 
 ## Prerequisites
 
-- Node.js 18+
+- Node.js (project currently declares `22.x` in backend engines)
 - npm
-- MongoDB Atlas (or reachable MongoDB instance)
-- Cloudinary account (for product image upload)
-- Stripe and Razorpay keys (if payment flows are enabled)
+- MongoDB connection string
+- Cloudinary account
+- Stripe secret key (if Stripe flow is enabled)
+- Razorpay key pair (if Razorpay flow is enabled)
 
 ## Environment Variables
 
-Use environment files per app.
+Create `.env` file in each app.
 
-### Backend (`backend/.env`)
+### backend/.env
 
 ```env
+# Server
 PORT=3000
 NODE_ENV=development
 
-MONGO_URI=your_mongodb_connection_string
+# Database/Auth
+MONGO_URI=your_mongodb_uri
 JWT_SECRET=your_jwt_secret
 
+# Admin credentials
 ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=strong_admin_password
+ADMIN_PASSWORD=strong_password
 
+# Cloudinary
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 
+# Payments
 STRIPE_SECRET_KEY=your_stripe_secret_key
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
 
+# Client origin + CORS
 FRONTEND_URL=http://localhost:5173
 CORS_ORIGINS=http://localhost:5173,http://localhost:5174
 ```
 
-### Frontend (`frontend/.env`)
+Notes:
+
+- `MONGO_URI` and `JWT_SECRET` are required to boot backend.
+- Keep `CORS_ORIGINS` comma-separated.
+- In production, include deployed frontend/admin origins in `CORS_ORIGINS`.
+
+### frontend/.env
 
 ```env
 VITE_BACKEND_URL=http://localhost:3000
 VITE_RAZORPAY_KEY_ID=your_razorpay_key_id
 ```
 
-### Admin (`admin/.env`)
+### admin/.env
 
 ```env
 VITE_BACKEND_URL=http://localhost:3000
 ```
 
-## Local Setup
+## Install Dependencies
 
-Install dependencies in all apps.
+Run these once from project root:
 
 ```bash
-cd backend && npm install
-cd ../frontend && npm install
-cd ../admin && npm install
+cd backend
+npm install
+
+cd ../frontend
+npm install
+
+cd ../admin
+npm install
 ```
 
-## Run Locally
+## Run Locally (3 Terminals)
 
-Open 3 terminals:
-
-1. Start backend
+1. Backend
 
 ```bash
 cd backend
 npm run server
 ```
 
-2. Start frontend
+2. Frontend
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-3. Start admin
+3. Admin
 
 ```bash
 cd admin
 npm run dev
 ```
 
-Default local URLs:
+Local URLs:
 
 - Frontend: `http://localhost:5173`
-- Admin: `http://localhost:5174` (or next available Vite port)
+- Admin: `http://localhost:5174`
 - Backend: `http://localhost:3000`
 
-## API Health Endpoints
+## NPM Scripts
 
-- `GET /` - Basic API status
-- `GET /health` - Uptime health check
+### backend/package.json
 
-## Main API Groups
+- `npm start` -> starts Node server (`server.js`)
+- `npm run server` -> starts nodemon for development
 
-### Users
+### frontend/package.json
+
+- `npm run dev`
+- `npm run build`
+- `npm run preview`
+- `npm run lint`
+
+### admin/package.json
+
+- `npm run dev`
+- `npm run build`
+- `npm run preview`
+- `npm run lint`
+
+## API Reference (Current)
+
+Base URL (local): `http://localhost:3000`
+
+Health:
+
+- `GET /` -> basic API running response
+- `GET /health` -> uptime + timestamp
+
+Users:
 
 - `POST /api/users/register`
 - `POST /api/users/login`
 - `POST /api/users/adminlogin`
 
-### Products
+Products:
 
-- `GET /api/products/list`
-- `POST /api/products/add` (admin)
-- `POST /api/products/remove` (admin)
-- `POST /api/products/single` (admin)
+- `GET /api/products/list` (public)
+- `POST /api/products/add` (admin token required)
+- `POST /api/products/remove` (admin token required)
+- `POST /api/products/single` (admin token required)
 
-### Cart
+Cart (user token required):
 
 - `POST /api/cart/add`
 - `POST /api/cart/update`
 - `POST /api/cart/usercart`
 
-### Orders
+Orders:
 
-- `POST /api/orders/placecod`
-- `POST /api/orders/placestripe`
-- `POST /api/orders/placerazorpay`
-- `POST /api/orders/verifystripe`
-- `POST /api/orders/verifyrazorpay`
-- `POST /api/orders/userorders`
-- `POST /api/orders/allorders` (admin)
-- `POST /api/orders/status` (admin)
+- `POST /api/orders/placecod` (user token required)
+- `POST /api/orders/placestripe` (user token required)
+- `POST /api/orders/placerazorpay` (user token required)
+- `POST /api/orders/verifystripe` (user token required)
+- `POST /api/orders/verifyrazorpay` (user token required)
+- `POST /api/orders/userorders` (user token required)
+- `POST /api/orders/allorders` (admin token required)
+- `POST /api/orders/status` (admin token required)
 
-## Deployment Guide
+Auth header accepted by middleware:
 
-Deploy each app separately.
+- `token: <jwt>`
+- or `Authorization: Bearer <jwt>`
 
-### 1) Deploy Backend
+## Deployment (Vercel)
 
-- Deploy `backend/` to Vercel
-- Set backend environment variables in Vercel project settings
-- Confirm backend URL works:
-  - `/`
-  - `/health`
+Deploy as 3 separate projects.
 
-### 2) Deploy Frontend
+### Backend deployment
 
-- Deploy `frontend/` to Vercel
+- Project root: `backend`
+- Uses `backend/vercel.json` with rewrite to `api/index.js`
+- Set all backend env vars in Vercel Project Settings
+
+### Frontend deployment
+
+- Project root: `frontend`
+- Uses Vite build output (`dist`)
 - Set `VITE_BACKEND_URL` to deployed backend URL
-- Redeploy after env changes
 
-### 3) Deploy Admin
+### Admin deployment
 
-- Deploy `admin/` to Vercel
+- Project root: `admin`
+- Uses Vite build output (`dist`)
 - Set `VITE_BACKEND_URL` to deployed backend URL
-- Redeploy after env changes
 
-### Deployment Checklist
+Post-deploy checks:
 
-- No secrets committed to Git
-- All production env variables set in deployment platform
-- `CORS_ORIGINS` includes deployed frontend and admin domains
-- Frontend and admin point to live backend URL
-- Payment keys are valid for selected mode (test or live)
-
-## Security Notes
-
-- Keep `.env` out of Git
-- Rotate keys immediately if exposed
-- Use strong `JWT_SECRET`, `ADMIN_PASSWORD`, and database credentials
-- Prefer role claim checks for admin-protected routes
+1. Backend `/health` returns success.
+2. Frontend and admin can login against live backend.
+3. `CORS_ORIGINS` includes both deployed frontend and admin domains.
+4. Payment env vars match mode (test/live) on both backend and client (Razorpay key ID in frontend).
 
 ## Troubleshooting
 
-- Command typo: use `npm run dev` (not `npm run derver`)
-- If frontend/admin cannot call backend, verify `VITE_BACKEND_URL`
-- If CORS error occurs, verify `CORS_ORIGINS` contains current origins
-- If admin routes fail with 403, re-login to get a fresh admin token
-- If upload fails, verify Cloudinary env values
-- If payment verification fails, verify payment keys and callback flow
+- `Invalid or expired token`: login again to refresh JWT and verify auth header format.
+- CORS blocked requests: update `CORS_ORIGINS` with exact origins.
+- Product upload failing: verify Cloudinary credentials and multipart payload fields `image1..image4`.
+- Stripe verification failing: ensure `sessionId` + `orderId` match the checkout metadata.
+- Razorpay verification failing: confirm signature fields and backend secret.
+- Linux-only deployment crashes can happen from case-sensitive import mismatches. Keep file import casing exact.
 
-## Future Improvements
+## Security Notes
 
-- Add automated tests (unit + integration)
-- Add CI pipeline (lint, build, test)
-- Add rate limiting and request validation
-- Add order email notifications
-- Add refresh token and session invalidation strategy
+- Never commit real `.env` files.
+- Rotate keys immediately if exposed.
+- Use strong secrets for JWT, admin password, and DB user.
+- Prefer production HTTPS and strict origin management.
+
+## Suggested Next Improvements
+
+1. Add API request validation (zod/joi/express-validator).
+2. Add tests (unit + integration).
+3. Add CI checks (lint, build, test).
+4. Add role-based authorization helper utilities for cleaner middleware.
 
 ## License
 
-This project is for learning and portfolio use.
+Learning and portfolio project.
